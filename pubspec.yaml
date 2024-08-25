@@ -1,7 +1,7 @@
 name: widget_hydrator
-description: "A new Flutter project."
+description: A powerful Flutter mixin for effortless StatefulWidget state persistence and hydration. Provides automatic saving and restoring of widget state across app restarts, with support for encryption, compression, versioning, and cross-platform storage. Features include selective persistence, state snapshots, undo/redo functionality, and performance metrics.
 version: 0.0.1
-homepage:
+homepage: https://github.com/samuelkchris/widget_hydrator
 
 environment:
   sdk: '>=3.4.4 <4.0.0'
@@ -9,6 +9,7 @@ environment:
 
 dependencies:
   archive: ^3.6.1
+  crypto: ^3.0.5
   encrypt: ^5.0.3
   flutter:
     sdk: flutter

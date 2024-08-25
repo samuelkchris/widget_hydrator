@@ -8,7 +8,7 @@ import 'package:universal_io/io.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 
 /// A cross-platform storage service that provides data persistence,
-/// compression, encryption, and versioning capabilities.
+/// compression, and encryption capabilities.
 class StorageService {
   static final StorageService _instance = StorageService._internal();
 
@@ -88,17 +88,16 @@ class StorageService {
     }
   }
 
-  /// Saves data to storage with version control.
+  /// Saves data to storage.
   ///
   /// [key] is the unique identifier for the data.
   /// [data] is the Map of data to be saved.
-  /// [version] is the version number of the data structure.
   /// If [compress] is true, the data will be compressed before saving.
   /// If [encrypt] is true, the data will be encrypted before saving.
   Future<void> saveData(String key, Map<String, dynamic> data,
-      {bool compress = false, bool encrypt = false, int version = 1}) async {
+      {bool compress = false, bool encrypt = false}) async {
     try {
-      debugPrint('Saving data for key: $key with version: $version');
+      debugPrint('Saving data for key: $key');
       final String jsonData = json.encode(data);
       String processedData = jsonData;
 
@@ -121,25 +120,25 @@ class StorageService {
       await _box.put(key, {
         'data': processedData,
         'hash': hash,
-        'version': version,
+        'version': 1, // Increment this when you change the data structure
         'compressed': compress,
         'encrypted': encrypt,
       });
-      debugPrint('Data saved successfully for key: $key with version: $version');
+      debugPrint('Data saved successfully for key: $key');
     } catch (e) {
       debugPrint('Failed to save data for key $key: $e');
       rethrow;
     }
   }
 
-  /// Loads data from storage with version information.
+  /// Loads data from storage.
   ///
   /// [key] is the unique identifier for the data.
   /// If [decompress] is true, the data will be decompressed after loading.
   /// If [decrypt] is true, the data will be decrypted after loading.
-  /// Returns a Map containing the data and its version.
   Future<Map<String, dynamic>?> loadData(String key,
-      {bool decompress = false, bool decrypt = false}) async {
+      {bool decompress = false, bool decrypt = false}) async
+  {
     try {
       debugPrint('Loading data for key: $key');
       final storedData = await _box.get(key);
@@ -168,6 +167,13 @@ class StorageService {
       debugPrint('Data decoded for key: $key');
       debugPrint('Data version: ${storedData['version']}');
       debugPrint('Data hash: ${storedData['hash']}');
+      debugPrint('Data decompressed : $processedData');
+      debugPrint('Data decoded : $decodedData');
+
+
+      // // Convert Map<dynamic, dynamic> to Map<String, dynamic>
+      // final Map<String, dynamic> typedData =
+      //     _convertToStringDynamicMap(decodedData);
 
       final String hash = _calculateHash(json.encode(decodedData));
       if (hash != storedData['hash']) {
@@ -175,15 +181,13 @@ class StorageService {
       }
 
       debugPrint('Data loaded successfully for key: $key');
-      return {
-        'data': decodedData,
-        'version': storedData['version'],
-      };
+      return decodedData;
     } catch (e) {
       debugPrint('Failed to load data for key $key: $e');
       return null;
     }
   }
+
 
   /// Deletes data from storage.
   ///
@@ -208,45 +212,6 @@ class StorageService {
     } catch (e) {
       debugPrint('Failed to clear all data: $e');
       rethrow;
-    }
-  }
-
-  /// Updates the version of existing data.
-  ///
-  /// [key] is the unique identifier for the data.
-  /// [newVersion] is the new version number to set.
-  Future<void> updateVersion(String key, int newVersion) async {
-    try {
-      debugPrint('Updating version for key: $key to version: $newVersion');
-      final storedData = await _box.get(key);
-      if (storedData == null) {
-        throw Exception('No data found for key: $key');
-      }
-
-      storedData['version'] = newVersion;
-      await _box.put(key, storedData);
-      debugPrint('Version updated successfully for key: $key');
-    } catch (e) {
-      debugPrint('Failed to update version for key $key: $e');
-      rethrow;
-    }
-  }
-
-  /// Gets the version of stored data.
-  ///
-  /// [key] is the unique identifier for the data.
-  /// Returns the version number, or null if the data doesn't exist.
-  Future<int?> getVersion(String key) async {
-    try {
-      final storedData = await _box.get(key);
-      if (storedData == null) {
-        debugPrint('No data found for key: $key');
-        return null;
-      }
-      return storedData['version'] as int?;
-    } catch (e) {
-      debugPrint('Failed to get version for key $key: $e');
-      return null;
     }
   }
 
@@ -281,9 +246,7 @@ class StorageService {
     return sha256.convert(utf8.encode(input)).toString();
   }
 
-  /// Gets all keys stored in the storage.
-  ///
-  /// Returns a list of all keys currently in storage.
+  /// get all keys
   List<String> getAllKeys() {
     return _box.keys.cast<String>().toList();
   }

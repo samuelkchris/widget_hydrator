@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:widget_hydrator/services/configuration_service.dart';
 import 'package:widget_hydrator/services/debug_service.dart';
@@ -221,7 +220,7 @@ mixin UltimateHydrationMixin<T extends StatefulWidget> on State<T> {
   }
 
   Future<void> _persistState() async {
-    if (!_isInitialized || _stateKey == null) return;
+    if (!_isInitialized) return;
 
     final stopwatch = Stopwatch()..start();
 

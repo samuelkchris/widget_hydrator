@@ -9,19 +9,25 @@ class DebugService {
 
   void log(String message) {
     if (enableLogging) {
-      print('WidgetHydrator: $message 😊');
+      if (kDebugMode) {
+        print('WidgetHydrator: $message 😊');
+      }
     }
   }
 
   void logError(String message) {
     if (enableLogging) {
-      print('WidgetHydrator Error: $message ❌');
+      if (kDebugMode) {
+        print('WidgetHydrator Error: $message ❌');
+      }
     }
   }
 
   void logWarning(String message) {
     if (enableLogging) {
-      print('WidgetHydrator Warning: $message ⚠️');
+      if (kDebugMode) {
+        print('WidgetHydrator Warning: $message ⚠️');
+      }
     }
   }
 }
